@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "module": "nodenext",
+        "target": "ES6",
+        "strict": true
+    }
+}
