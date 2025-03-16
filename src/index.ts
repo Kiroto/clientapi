@@ -1,12 +1,21 @@
 import express from 'express';
 import dotenv from '@dotenvx/dotenvx';
+import fs from 'fs';
+import https from 'https';
 import axios from 'axios';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 443;
 const ADMIN_API_URL = process.env.ADMIN_API_URL || 'http://localhost:5000';
+
+const options: https.ServerOptions = {
+  key: fs.readFileSync('./certs/server.key'),
+  cert: fs.readFileSync('./certs/server.crt'),
+  minVersion: 'TLSv1.2'
+};
+
 
 app.use(express.json()); // Allow JSON parsing
 
@@ -20,7 +29,7 @@ app.get('/get-profile/:id', async (req, res) => {
     res.status(500).json({ error: "Failed to retrieve profile" });
   }});
 
-
-app.listen(PORT, async () => {
-    console.log(`Profile service running at port ${PORT}`);
+// Start HTTPS server
+https.createServer(options, app).listen(PORT, () => {
+  console.log(`Secure Profile Service running at https://localhost:${PORT}`);
 });
