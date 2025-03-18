@@ -10,12 +10,6 @@ const app = express();
 const PORT = process.env.PORT || 443;
 const ADMIN_API_URL = process.env.ADMIN_API_URL || 'http://localhost:5000';
 
-const options: https.ServerOptions = {
-  key: fs.readFileSync('./certs/server.key'),
-  cert: fs.readFileSync('./certs/server.crt'),
-  minVersion: 'TLSv1.2'
-};
-
 
 app.use(express.json()); // Allow JSON parsing
 
@@ -27,9 +21,23 @@ app.get('/get-profile/:id', async (req, res) => {
   } catch (error: any) {
     console.error("Error fetching profile:", error.message);
     res.status(500).json({ error: "Failed to retrieve profile" });
-  }});
-
-// Start HTTPS server
-https.createServer(options, app).listen(PORT, () => {
-  console.log(`Secure Profile Service running at https://localhost:${PORT}`);
+  }
 });
+
+
+try {
+  const options: https.ServerOptions = {
+    key: fs.readFileSync('./certs/server.key'),
+    cert: fs.readFileSync('./certs/server.crt'),
+    minVersion: 'TLSv1.2'
+  };
+
+  // Start HTTPS server
+  https.createServer(options, app).listen(PORT, () => {
+    console.log(`Secure Profile Reading Service running at https://localhost:${PORT}`);
+  });
+} catch (e: any) {
+  app.listen(PORT, () => {
+    console.log(`Profile Reading Service running at http://localhost:${PORT}`);
+  })
+}
